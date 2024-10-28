@@ -3,6 +3,5 @@ torchvision
 Pillow
 gradio
 gunicorn
-setup==41.0.0
 numpy
 requests
