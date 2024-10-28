@@ -1,5 +1,5 @@
-
 # Import necessary libraries
+import os
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -9,6 +9,7 @@ from torchvision import models
 
 # Set up the device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Using device: {device}")
 
 # Define the image preprocessing function
 def transform_image(image):
@@ -54,16 +55,15 @@ model.classifier = nn.Sequential(
 
 # Load the saved model weights from solution.pth, ignoring classifier mismatches
 checkpoint_path = "solution.pth"  # Assuming solution.pth is in the current directory
+if os.path.exists(checkpoint_path):
+    state_dict = torch.load(checkpoint_path, map_location=device)
+    # Ignore the classifier weights from the state_dict by popping them out
+    state_dict.pop('classifier.2.weight', None)  # Ignore the mismatched weight
+    state_dict.pop('classifier.2.bias', None)    # Ignore the mismatched bias
+    model.load_state_dict(state_dict, strict=False)
+else:
+    print("Warning: solution.pth not found. Make sure it's in the root directory.")
 
-# Load the state_dict, but ignore the classifier layers (as they have different dimensions)
-state_dict = torch.load(checkpoint_path, map_location=device)
-
-# Ignore the classifier weights from the state_dict by popping them out
-state_dict.pop('classifier.2.weight', None)  # Ignore the mismatched weight
-state_dict.pop('classifier.2.bias', None)    # Ignore the mismatched bias
-
-# Load the remaining weights into the model
-model.load_state_dict(state_dict, strict=False)
 model.to(device)
 model.eval()  # Set model to evaluation mode
 
@@ -75,4 +75,4 @@ interface = gr.Interface(fn=predict,
                          description="Upload an image and get a classification result for 21 food classes.")
 
 # Launch the Gradio interface
-interface.launch(share=True)  # Keep share=True to allow public access via link
+interface.launch()  # No need for share=True on Heroku
