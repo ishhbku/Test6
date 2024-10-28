@@ -1,5 +1,6 @@
-torch>=2.2.0
-torchvision>=0.15.0
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
+-f https://download.pytorch.org/whl/torch_stable.html
 pillow>=9.3.0
 gradio>=3.0.15
 gunicorn
